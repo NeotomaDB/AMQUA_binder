@@ -92,47 +92,94 @@ plotLeaflet(spo_sites)
 
 The `neotoma` package used a bounding box for locations, structured as a vector of latitude and longitude values: `c(xmin, ymin, xmax, ymax)`.  The `neotoma2` R package supports both this simple bounding box, but also more complex spatial objects, using the [`sf` package](https://r-spatial.github.io/sf/). Using the `sf` package allows us to more easily work with raster and polygon data in R, and to select sites from more complex spatial objects.  The `loc` parameter works with the simple vector, [WKT](https://arthur-e.github.io/Wicket/sandbox-gmaps3.html), [geoJSON](http://geojson.io/#map=2/20.0/0.0) objects and native `sf` objects in R.  **Note however** that the `neotoma2` package is a wrapper for a simple API call using a URL ([api.neotomadb.org](https://api.neotomadb.org)), and URL strings can only be 1028 characters long, so the API cannot accept very long/complex spatial objects.
 
-Looking for sites using a location. We're putting three representations of the Czech Republic here as part of a list with three elements, a geoJSON, WKT and bounding box representation.  We've also transformed the `cz$geoJSON` element to an object for the `sf` package.  Any of these four spatial representations work with the `neotoma2` package.
+Looking for sites using a location. We're putting three representations of Wisconsin-Madison here as part of a list with three elements, a geoJSON, WKT and bounding box representation.  We've also transformed the `wi$geoJSON` element to an object for the `sf` package.  Any of these four spatial representations work with the `neotoma2` package.
 
-```{r boundingBox}
-cz <- list(geoJSON = '{"type": "Polygon",
-        "coordinates": [[
-            [12.40, 50.14],
-            [14.10, 48.64],
-            [16.95, 48.66],
-            [18.91, 49.61],
-            [15.24, 50.99],
-            [12.40, 50.14]]]}',
-        WKT = 'POLYGON ((12.4 50.14, 
-                         14.1 48.64, 
-                         16.95 48.66, 
-                         18.91 49.61,
-                         15.24 50.99,
-                         12.4 50.14))',
-        bbox = c(12.4, 48.64, 18.91, 50.99))
+```{r}
+wi_sitepipe <-'{
+        "type": "Polygon",
+        "coordinates": [
+          [[-90.74, 47.17],
+            [-92.02, 46.95],
+            [-92.96, 46.22],
+            [-93.07, 44.66],
+            [-91.91, 43.88],
+            [-90.70, 42.22],
+            [-87.40, 42.35],
+            [-87.23, 43.77],
+            [-87.14, 45.70],
+            [-89.49, 46.49],
+            [-90.74,47.17]]
+        ]
+      }' %>%
+  geojsonsf::geojson_sf() %>%
+  neotoma2::get_sites(loc = ., limit= 1000)
 
-cz$sf <- geojsonsf::geojson_sf(cz$geoJSON)[[1]]
+wiWKT = 'POLYGON ((-90.74 47.17,
+                  -92.02 46.95,
+                  -92.96 46.22,
+                  -93.07 44.66,
+                  -91.91 43.88,
+                  -90.70 42.22,
+                  -87.40 42.35,
+                  -87.23 43.77,
+                  -87.14 45.70,
+                  -89.49 46.49,
+                  -90.74 47.17))'
 
-cz_sites <- neotoma2::get_sites(loc = cz$geoJSON, all_data = TRUE)
+wiBB = c(-93.07,  42.22,-87.14, 47.17)
+
+
+
+
+
+
+
+
+
+
 ```
 
-You can always simply `plot()` the `sites` objects, but you will lose some of the geographic context.  The `plotLeaflet()` function returns a `leaflet()` map, and allows you to further customize it, or add additional spatial data (like our original bounding polygon, `cz$sf`, which works directly with the R `leaflet` package):
+
+```{r boundingBox}
+wi <- list(geoJSON = '{"type": "Polygon",
+        "coordinates": [[
+            [-89.50, 43.09],
+            [-89.37, 43.04],
+            [-89.31, 43.05],
+            [-89.32, 43.10],
+            [-89.40, 43.15],
+            [-89.50, 43.09]
+          ]]}',
+        WKT = 'POLYGON ((-89.50 43.09, 
+                         -89.37 43.04, 
+                         -89.31 43.05,
+                         -89.32 43.10,
+                         -89.40 43.15,
+                         -89.50 43.09))',
+        bbox = c(-89.31, 43.04, -89.50, 43.15))
+
+wi$sf <- geojsonsf::geojson_sf(wi$geoJSON)[[1]]
+
+wi_sites <- neotoma2::get_sites(loc = wi$geoJSON, all_data = TRUE)
+```
+
+You can always simply `plot()` the `sites` objects, but you will lose some of the geographic context.  The `plotLeaflet()` function returns a `leaflet()` map, and allows you to further customize it, or add additional spatial data (like our original bounding polygon, `wi$sf`, which works directly with the R `leaflet` package):
 
 ##### Code
 
 ```{r plotL, eval=FALSE}
-neotoma2::plotLeaflet(cz_sites) %>% 
+neotoma2::plotLeaflet(wi_sites) %>% 
   leaflet::addPolygons(map = ., 
-                       data = cz$sf, 
+                       data = wi$sf, 
                        color = "green")
 ```
 
 ##### Result
 
 ```{r plotLeaf, echo=FALSE}
-neotoma2::plotLeaflet(cz_sites) %>% 
+neotoma2::plotLeaflet(wi_sites) %>% 
   leaflet::addPolygons(map = ., 
-                       data = cz$sf, 
+                       data = wi$sf, 
                        color = "green")
 ```
 
@@ -145,13 +192,13 @@ If we look at the [UML diagram](https://en.wikipedia.org/wiki/Unified_Modeling_L
 ##### Code
 
 ```{r summary_sites, eval=FALSE}
-neotoma2::summary(cz_sites)
+neotoma2::summary(wi_sites)
 ```
 
 ##### Result
 
 ```{r summarySitesTable, eval=TRUE, echo=FALSE}
-neotoma2::summary(cz_sites) %>%
+neotoma2::summary(wi_sites) %>%
   DT::datatable(data = ., rownames = FALSE, 
                 options = list(scrollX = "100%", dom = 't'))
 ```
@@ -162,21 +209,21 @@ We can see that there are no chronologies associated with the `site` objects. Th
 
 We know that collection units and datasets are contained within sites.  Similarly, a `sites` object contains `collectionunits` which contain `datasets`. From the table above we can see that some of the sites we've looked at contain pollen records. That said, we only have the `sites`, it's just that (for convenience) the `sites` API returns some information about datasets so to make it easier to navigate the records.
 
-With a `sites` object we can directly call `get_datasets()`, to pull in more metadata about the datasets.  At any time we can use `datasets()` to get more information about any datasets that a `sites` object may contain.  Compare the output of `datasets(cz_sites)` to the output of a similar call using the following:
+With a `sites` object we can directly call `get_datasets()`, to pull in more metadata about the datasets.  At any time we can use `datasets()` to get more information about any datasets that a `sites` object may contain.  Compare the output of `datasets(wi_sites)` to the output of a similar call using the following:
 
 #### Code
 
 ```{r datasetsFromSites, eval=FALSE}
-cz_datasets <- neotoma2::get_datasets(cz_sites, all_data = TRUE)
+wi_datasets <- neotoma2::get_datasets(wi_sites, all_data = TRUE)
 
-datasets(cz_datasets)
+datasets(wi_datasets)
 ```
 
 #### Result
 
 ```{r datasetsFromSitesResult, echo=FALSE, message=FALSE}
-cz_datasets <- neotoma2::get_datasets(cz_sites, all_data = TRUE)
-datasets(cz_datasets) %>% 
+wi_datasets <- neotoma2::get_datasets(wi_sites, all_data = TRUE)
+datasets(wi_datasets) %>% 
   as.data.frame() %>% 
   DT::datatable(data = ., 
                 options = list(scrollX = "100%", dom = 't'))
@@ -189,19 +236,19 @@ If we choose to pull in information about only a single dataset type, or if ther
 #### Code
 
 ```{r downloads, eval=FALSE}
-cz_pollen <- cz_datasets %>% 
+wi_pollen <- wi_datasets %>% 
   neotoma2::filter(datasettype == "pollen" & !is.na(age_range_young))
 
-neotoma2::summary(cz_pollen)
+neotoma2::summary(wi_pollen)
 ```
 
 #### Result
 
 ```{r downloadsCode, echo = FALSE}
-cz_pollen <- cz_datasets %>% 
+wi_pollen <- wi_datasets %>% 
   neotoma2::filter(datasettype == "pollen" & !is.na(age_range_young))
 
-neotoma2::summary(cz_pollen) %>% DT::datatable(data = ., 
+neotoma2::summary(wi_pollen) %>% DT::datatable(data = ., 
                 options = list(scrollX = "100%", dom = 't'))
 ```
 
@@ -209,20 +256,20 @@ We can see now that the data table looks different, and there are fewer total si
 
 ### Pulling in `sample()` data.
 
-Because sample data adds a lot of overhead (for the Czech pollen data, the object that includes the dataset with samples is 20 times larger than the `dataset` alone), we try to call `get_downloads()` after we've done our preliminary filtering. After `get_datasets()` you have enough information to filter based on location, time bounds and dataset type.  When we move to `get_download()` we can do more fine-tuned filtering at the analysis unit or taxon level.
+Because sample data adds a lot of overhead (for the Wisconsin-Madison pollen data, the object that includes the dataset with samples is 20 times larger than the `dataset` alone), we try to call `get_downloads()` after we've done our preliminary filtering. After `get_datasets()` you have enough information to filter based on location, time bounds and dataset type.  When we move to `get_download()` we can do more fine-tuned filtering at the analysis unit or taxon level.
 
 The following call can take some time, but we've frozen the object as an RDS data file. You can run this command on your own, and let it run for a bit, or you can just load the object in.
 
 ```{r taxa}
 ## This line is commented out because we've already run it for you.
-## cz_dl <- cz_pollen %>% get_downloads(all_data = TRUE)
-cz_dl <- readRDS('data/czDownload.RDS')
+## wi_dl <- wi_pollen %>% get_downloads(all_data = TRUE)
+wi_dl <- readRDS('data/wiDownload.RDS')
 ```
 
 Once we've downloaded, we now have information for each site about all the associated collection units, the datasets, and, for each dataset, all the samples associated with the datasets.  To extract all the samples we can call:
 
 ```{r allSamples}
-allSamp <- samples(cz_dl)
+allSamp <- samples(wi_dl)
 ```
 
 When we've done this, we get a `data.frame` that is `r nrow(allSamp)` rows long and `r ncol(allSamp)` columns wide.  The reason the table is so wide is that we are returning data in a **long** format.  Each row contains all the information you should need to properly interpret it:
@@ -240,15 +287,15 @@ If you want to know what taxa we have in the record you can use the helper funct
 ##### Code
 
 ```{r taxa2, eval=FALSE}
-neotomatx <- neotoma2::taxa(cz_dl)
+neotomatx <- neotoma2::taxa(wi_dl)
 ```
 
 ##### Results
 
 ```{r taxaprint, echo=FALSE, message=FALSE}
-neotomatx <- neotoma2::taxa(cz_dl)
+neotomatx <- neotoma2::taxa(wi_dl)
 
-neotoma2::taxa(cz_dl) %>% 
+neotoma2::taxa(wi_dl) %>% 
   DT::datatable(data = head(neotomatx, n = 20), rownames = FALSE, 
                 options = list(scrollX = "100%", dom = 't'))
 ```
@@ -290,7 +337,7 @@ We can get the list of original names directly from the `taxa()` call, applied t
 ##### Code 
 
 ```{r countbySitesSamples, eval=FALSE}
-taxaplots <- taxa(cz_dl)
+taxaplots <- taxa(wi_dl)
 # Save the taxon list to file so we can edit it subsequently.
 readr::write_csv(taxaplots, "data/mytaxontable.csv")
 ```
@@ -298,7 +345,7 @@ readr::write_csv(taxaplots, "data/mytaxontable.csv")
 ##### Result
 
 ```{r PlotTaxonCounts, echo=FALSE, fig.cap="**Figure**. A plot of the number of sites a taxon appears in, against the number of samples a taxon appears in.", message=FALSE}
-taxaplots <- taxa(cz_dl)
+taxaplots <- taxa(wi_dl)
 ggplot(data = taxaplots, aes(x = sites, y = samples)) +
   geom_point() +
   stat_smooth(method = 'glm', 
@@ -328,7 +375,7 @@ DT::datatable(translation, rownames = FALSE,
 You can see we've changed some of the taxon names in the taxon table (don't look too far, I just did this as an example).  To replace the names in the `samples()` output, we'll join the two tables using an `inner_join()` (meaning the `variablename` must appear in both tables for the result to be included), and then we're going to select only those elements of the sample tables that are relevant to our later analysis:
 
 ```{r joinTranslation, eval = FALSE}
-allSamp <- samples(cz_dl)
+allSamp <- samples(wi_dl)
 
 allSamp <- allSamp %>%
   inner_join(translation, by = c("variablename" = "variablename")) %>% 
@@ -355,7 +402,7 @@ We're using the `arrange()` call to sort by the number of times that the taxon a
 
 ```{r stratiplot, message = FALSE}
 # Get a particular site, select only taxa identified from pollen (and only trees/shrubs)
-plottingSite <- cz_dl[[1]]
+plottingSite <- wi_dl[[1]]
 
 plottingTaxa <- taxa(plottingSite) %>%
   filter(ecologicalgroup %in% c("TRSH")) %>%
@@ -395,12 +442,12 @@ This appears to be a fairly long set of commands, but the code is pretty straigh
 
 To plot we can use `rioja`'s `strat.plot()`, sorting the taxa using weighted averaging scores (`wa.order`). I've also added a CONISS plot to the edge of the the plot, to show how the new *wide* data frame works with distance metric funcitons.
 
-```{r plotStrigraph, message=FALSE, warning=FALSE}
+```{r plotStrigraph, message=FALSE, warning=FALSE, eval = FALSE}
 clust <- rioja::chclust(dist(sqrt(counts)),
                         method = "coniss")
 
 plot <- rioja::strat.plot(counts[,-1] * 100, yvar = counts$age,
-                  title = cz_dl[[1]]$sitename,
+                  title = wi_dl[[1]]$sitename,
                   ylabel = "Calibrated Years BP",
                   xlabel = "Pollen (%)",
                   y.rev = TRUE,
@@ -412,7 +459,7 @@ rioja::addClustZone(plot, clust, 4, col = "red")
 
 ### Change in Time Across Sites
 
-We now have site information across the Czech Republic, with samples, and with taxon names. I'm interested in looking at the distributions of taxa across time, their presence/absence. I'm going to pick the top 20 taxa (based on the number of times they appear in the records) and look at their distributions in time:
+We now have site information across Wisconsin-Madison, with samples, and with taxon names. I'm interested in looking at the distributions of taxa across time, their presence/absence. I'm going to pick the top 20 taxa (based on the number of times they appear in the records) and look at their distributions in time:
 
 ```{r summarizeByTime, message = FALSE}
 plottingTaxa <- taxa(plottingSite) %>%
@@ -421,12 +468,12 @@ plottingTaxa <- taxa(plottingSite) %>%
   arrange(desc(sites)) %>% 
   head(n = 20)
 
-taxabyage <- samples(cz_dl) %>% 
+taxabyage <- samples(wi_dl) %>% 
   filter(variablename %in% plottingTaxa$variablename) %>% 
   group_by(variablename, "age" = round(age * 2, -3) / 2) %>% 
   summarise(n = length(unique(siteid)), .groups = 'keep')
 
-samplesbyage <- samples(cz_dl) %>% 
+samplesbyage <- samples(wi_dl) %>% 
   filter(variablename %in% plottingTaxa$variablename) %>% 
   group_by("age" = round(age * 2, -3) / 2) %>% 
   summarise(samples = length(unique(siteid)), .groups = 'keep')
@@ -455,7 +502,7 @@ We are often interested in the interaction between taxa and climate, assuming th
 The first step is taking our sample data and turning it into a spatial object using the `sf` package in R:
 
 ```{r makeSamplesSpatial}
-modern <- samples(cz_dl) %>% 
+modern <- samples(wi_dl) %>% 
   filter(age < 50) %>% 
   filter(ecologicalgroup == "TRSH" & elementtype == "pollen" & units == "NISP")
 
@@ -489,7 +536,7 @@ spatial <- spatial %>%
 
 #### Setting the Background
 
-We want to get the background distribution of July temperatures in the Czech Republic, to plot our taxon distributions against by taking the maximum value of the temperature, however, since all values at the site are the same (because we used a spatial overlay) the maximum is the same as the actual July temperature at the site.
+We want to get the background distribution of July temperatures in Wisconsin-Madison, to plot our taxon distributions against by taking the maximum value of the temperature, however, since all values at the site are the same (because we used a spatial overlay) the maximum is the same as the actual July temperature at the site.
 
 ```{r topten}
 maxsamp <- spatial %>% 
