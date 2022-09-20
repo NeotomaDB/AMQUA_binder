@@ -1,13 +1,11 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![NSF-1948926](https://img.shields.io/badge/NSF-1948926-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=1948926)
-# EPD  Workflows and Sample Binder
+# AMQUA  Workflows and Sample Binder
 
 Repository Template to create a Binder with the Neotoma2 package.  
 RStudio here:  
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NeotomaDB/AMQUA_binder/main?urlpath=rstudio)
-  
-Slides here:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NeotomaDB/AMQUA_binder/main?urlpath=notebooks%2Fslides%2Fslides1.ipynb)
+
 ## Contributors
 
 This project is an open project, and contributions are welcome from any individual.  All contributors to this project are bound by a [code of conduct](CODE_OF_CONDUCT.md).  Please review and follow this code of conduct as part of your contribution.
@@ -19,4 +17,4 @@ This project is an open project, and contributions are welcome from any individu
 
 ## How to use this repository
 
-This is a simple Binder  file that contains two use cases of the Neotoma package for the EPD 2022 Workshop.
+This is a simple Binder  file that contains two use cases of the Neotoma package for the AMQUA 2022 Workshop.

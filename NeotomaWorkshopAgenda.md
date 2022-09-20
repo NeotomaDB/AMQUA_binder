@@ -1,4 +1,4 @@
-# EPD Neotoma 2.0 R Workshop - Praha
+# AMQUA Neotoma 2.0 R Workshop - University of Wisconsin-Madison
 
 ## Socorro Dominguez Vidaña, Simon Goring
 
@@ -15,9 +15,8 @@ At the end of this workshop, users will understand the following concepts:
 
 Online resources for users include links embedded within the agenda, as well as:
 
-* Online, interactive slides (open the “Slides” folder): [https://bit.ly/EPDSlides](https://bit.ly/EPDSlides)
-* An online version of RStudio built for this workshop: [https://bit.ly/EPDRstudio](https://bit.ly/EPDRstudio)
-* The code repository for the workshop: [https://github.com/NeotomaDB/EPD_binder](https://github.com/NeotomaDB/EPD_binder)
+* An online version of RStudio built for this workshop: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NeotomaDB/AMQUA_binder/main?urlpath=rstudio)
+* The code repository for the workshop: [https://github.com/NeotomaDB/AMQUA_binder](https://github.com/NeotomaDB/AMQUA_binder)
 
 Install the R package:
 
